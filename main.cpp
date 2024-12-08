@@ -1,14 +1,14 @@
-    #include <iostream>
+#include <iostream>
     #include <vector>
     #include <fstream>   
     #include <ranges>
     #include <algorithm>
- 
- /* #include <bits/stdc++.h>
+    #include <sstream>
+    #include <functional>
+    #include <cmath>
+    #include <bits/stdc++.h>
     #include <string>
     #include <numeric>
-    #include <sstream>
-*/
 
 int main(){
     std::string filename = "C:/Users/trond/Documents/Workspace GIT/CPP Repositories/AoC2024/docs/input.txt"; 
@@ -17,35 +17,49 @@ int main(){
         std::cerr << "Error: Could not open file " << filename << std::endl;
         return 1;
     }
-    std::vector<int> list1;
-    std::vector<int> list2;
-    int a, b;
+    std::string line;
+    int antall = 0;
+    int threshold = 3; 
+ 
+    while (std::getline(infile, line)) {
+        std::istringstream iss(line); 
+        std::vector<int>numbers; 
+        std::vector<int>numbersMOD;
+        std::string value;
+        
+        bool safe=false; 
+        bool done=false;
 
-    while (infile >> a >> b ) {
-    list1.push_back(a);
-    list2.push_back(b);
-    }
-
-//Sorter listene og summer differansen linje for linje. 
-    std::sort(list1.begin(), list1.end());
-    std::sort(list2.begin(), list2.end());
+        auto predicate_asc = [threshold](int a, int b) {
+            return a >= b || std::abs(a - b) > threshold;
+            };
+        auto predicate_dec = [threshold](int a, int b) {
+            return a <= b || std::abs(a - b) > threshold;
+            };
     
-    int accumSum=0;
-    for( auto i=0; i < list1.size(); ++i ) {
-        accumSum = accumSum + std::abs((list1[i] - list2[i]));
+        while(iss>>value){
+            numbers.push_back(std::stoi(value));
+            }
+            
+            for(int x = 0; x<numbers.size(); x++){
+                numbersMOD=numbers;
+                numbersMOD.erase(numbersMOD.begin()+x);
+                auto it = std::ranges::adjacent_find(numbersMOD, predicate_asc);// check ascending & Threshold
+                if (it==numbersMOD.end()){
+                    safe=true;
+                    x=numbers.size();
+                    }
+                it = std::ranges::adjacent_find(numbersMOD, predicate_dec);// check decending & Threshold
+                if (it==numbersMOD.end()){
+                    safe=true;
+                    x=numbers.size();
+                    }
+            }
+                if(safe){antall++;}
     }
-    std::cout << "Dag 1_a: Akkumulert differanse, linje for linje : "<<accumSum<<std::endl;
-
-//Finn antall ganger et tall i list1 opptrer i list2
-    int accumEqual= 0; 
-    for (int num : list1) {
-        auto range = std::ranges::equal_range(list2, num);
-        auto count = std::distance(range.begin(), range.end());
-        //std::cout << "Tallet " << num << " i liste 1 finnes  " << count << " ganger i liste 2.\n";
-        accumEqual = accumEqual + (num *count);
-    }
-    std::cout << "Dag 1_b: Summen av produktene av: (like tall * antall like) : " << accumEqual<<std::endl;
+    std::cout<<"Antall safe levels :"<<antall;        
+        
+    infile.close();
     return 0; 
- }
-
     
+ }
