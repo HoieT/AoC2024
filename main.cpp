@@ -1,65 +1,44 @@
-#include <iostream>
+    #include <iostream>
     #include <vector>
     #include <fstream>   
-    #include <ranges>
-    #include <algorithm>
     #include <sstream>
-    #include <functional>
-    #include <cmath>
-    #include <bits/stdc++.h>
     #include <string>
-    #include <numeric>
+    #include <regex>
 
 int main(){
+    std::string line;
+    int summary=0; 
+    std::string element;
     std::string filename = "C:/Users/trond/Documents/Workspace GIT/CPP Repositories/AoC2024/docs/input.txt"; 
     std::ifstream infile(filename);
     if (!infile) {
         std::cerr << "Error: Could not open file " << filename << std::endl;
         return 1;
     }
-    std::string line;
-    int antall = 0;
-    int threshold = 3; 
- 
-    while (std::getline(infile, line)) {
-        std::istringstream iss(line); 
-        std::vector<int>numbers; 
-        std::vector<int>numbersMOD;
-        std::string value;
+    std::getline(infile, line);
         
-        bool safe=false; 
-        bool done=false;
+    std::regex pattern ("mul\\(\\d{1,3},\\d{1,3}\\)");
+    std::smatch result;
+    std::regex_match(line, result, pattern);
+    
+    while(std::regex_search(line,result,pattern)){
+       element=result[0];
+       std::istringstream iss(element);
+        int a, b;
+        char x1, x2, x3, m1, m2, m3;
+        if (iss >> m1 >> m2 >> m3 >> x1 >> a >> x2 >> b >> x3 && x1 == '(' && x2 == ',' && x3 ==')' && m1=='m' && m2=='u'&& m3=='l') {
+        std::vector<int> t = {a,b};
+        summary=summary + (a*b);
+        }     
 
-        auto predicate_asc = [threshold](int a, int b) {
-            return a >= b || std::abs(a - b) > threshold;
-            };
-        auto predicate_dec = [threshold](int a, int b) {
-            return a <= b || std::abs(a - b) > threshold;
-            };
-    
-        while(iss>>value){
-            numbers.push_back(std::stoi(value));
-            }
-            
-            for(int x = 0; x<numbers.size(); x++){
-                numbersMOD=numbers;
-                numbersMOD.erase(numbersMOD.begin()+x);
-                auto it = std::ranges::adjacent_find(numbersMOD, predicate_asc);// check ascending & Threshold
-                if (it==numbersMOD.end()){
-                    safe=true;
-                    x=numbers.size();
-                    }
-                it = std::ranges::adjacent_find(numbersMOD, predicate_dec);// check decending & Threshold
-                if (it==numbersMOD.end()){
-                    safe=true;
-                    x=numbers.size();
-                    }
-            }
-                if(safe){antall++;}
+       for(auto x:result){
+           std::cout<< x << " ";
+            } 
+     
+        std::cout<<std::endl; 
+        line = result.suffix();
     }
-    std::cout<<"Antall safe levels :"<<antall;        
-        
-    infile.close();
-    return 0; 
-    
- }
+   
+    std::cout<< "summary = "<<summary;
+    return 0;
+}
