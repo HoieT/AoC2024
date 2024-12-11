@@ -4,11 +4,16 @@
     #include <sstream>
     #include <string>
     #include <regex>
+    #include <numbers>
+  
 
 int main(){
     std::string line;
-    int summary=0; 
-    std::string element;
+    int summary=0;
+    bool skip= false;   
+    std::string element0;
+    std::string element1;
+    std::string element2;
     std::string filename = "C:/Users/trond/Documents/Workspace GIT/CPP Repositories/AoC2024/docs/input.txt"; 
     std::ifstream infile(filename);
     if (!infile) {
@@ -17,28 +22,33 @@ int main(){
     }
     std::getline(infile, line);
         
-    std::regex pattern ("mul\\(\\d{1,3},\\d{1,3}\\)");
+    std::regex pattern ("mul\\((\\d{1,3}),(\\d{1,3})\\)|(do\\(\\))|(don't\\(\\))");
     std::smatch result;
     std::regex_match(line, result, pattern);
-    
+    bool operate = true; 
     while(std::regex_search(line,result,pattern)){
-       element=result[0];
-       std::istringstream iss(element);
-        int a, b;
-        char x1, x2, x3, m1, m2, m3;
-        if (iss >> m1 >> m2 >> m3 >> x1 >> a >> x2 >> b >> x3 && x1 == '(' && x2 == ',' && x3 ==')' && m1=='m' && m2=='u'&& m3=='l') {
-        std::vector<int> t = {a,b};
-        summary=summary + (a*b);
-        }     
+         
+        if(result[0]=="don't()")operate=false;
+        if(result[0]=="do()"){
+        operate=true;
+        skip= true;// juks :-)
+        }    
 
-       for(auto x:result){
+            if(operate && !skip){
+            int a = std::stoi(result[1]);
+            int b = std::stoi(result[2]);
+            summary=summary + (a*b);
+            }
+       skip = false; // juks :-) 
+
+       /*for(auto x:result){
            std::cout<< x << " ";
-            } 
+            }*/ 
      
-        std::cout<<std::endl; 
+        //std::cout<<std::endl; 
         line = result.suffix();
     }
    
-    std::cout<< "summary = "<<summary;
+    std::cout<< "Sum do's and don'ts = "<<summary;
     return 0;
 }
