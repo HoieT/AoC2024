@@ -5,7 +5,7 @@
     #include <sstream>
     #include <ranges>
 
-bool fixPrintOrderREC(const std::vector<std::vector<int>>& por, std::vector<int> ptpLine, int n){
+bool fixPrintOrderREC(const std::vector<std::vector<int>>& por, std::vector<int>& ptpLine, int n){
     //print ut ptpLine
 //    for (auto x:ptpLine)std::cout<<x<<" "; 
 //    std::cout<<std::endl; 
@@ -20,19 +20,20 @@ bool fixPrintOrderREC(const std::vector<std::vector<int>>& por, std::vector<int>
   //      if(itLast==ptpLine.end())std::cout<<" No Last "<<std::endl; 
   //      if(itFirst<itLast)std::cout<<" Rule Confirmed "<<std::endl;
         if (n==0){
-            std::cout<<" Print order apply to all rules \n";
+            std::cout<<"Print order apply to all rules \n";
             return true; 
         } 
         n--;
         return fixPrintOrderREC(por, ptpLine, n);
     }
-    std::cout<<"ERROR: n="<<n<<std::endl;
-        for (auto x:ptpLine)std::cout<<x<<" "; 
+       // 1, 7, 2, 3, 4, 5, 6, 8
         std::iter_swap(itFirst, itLast);
-        std::cout<<"After Swap: "<<std::endl;
-        for (auto x:ptpLine)std::cout<<x<<" "; 
-        std::cout<<std::endl;
-    return fixPrintOrderREC(por, ptpLine, n);     
+        int dist = std::distance(itFirst, itLast); 
+        for (int x=0; x<dist; x++){
+            std::iter_swap(itLast-x, itLast-x-1);
+        }
+      
+     return false;// fixPrintOrderREC(por, ptpLine, n);     
     }
 
 bool checkPrintOrderREC(const std::vector<std::vector<int>>& por, const std::vector<int>& ptpLine, int n){
@@ -71,7 +72,7 @@ int main(){
    
 
 
-    std::string filename = "C:/Users/trond/Documents/Workspace GIT/CPP Repositories/AoC2024/docs/testPageOrderingRules.txt"; 
+    std::string filename = "C:/Users/trond/Documents/Workspace GIT/CPP Repositories/AoC2024/docs/PageOrderingRules.txt"; 
     std::ifstream infile(filename);
     if (!infile) {
         std::cerr << "Error: Could not open file " << filename << std::endl;
@@ -91,7 +92,7 @@ int main(){
             } 
         }
    
-    std::string filename2 = "C:/Users/trond/Documents/Workspace GIT/CPP Repositories/AoC2024/docs/testPagesToProduce.txt"; 
+    std::string filename2 = "C:/Users/trond/Documents/Workspace GIT/CPP Repositories/AoC2024/docs/PagesToProduce.txt"; 
     std::ifstream infile2(filename2);
     if (!infile2) {
         std::cerr << "Error: Could not open file " << filename2 << std::endl;
@@ -141,10 +142,35 @@ int main(){
     int centercell= ((ProductionList[x].size()/2));
     sumCenterCell = sumCenterCell+ProductionList[x][centercell]; 
     for (auto x:ProductionList[x])std::cout<<x<<" ";      
-    std::cout<<"CenterValue: "<<ProductionList[x][centercell]<<std::endl;
+    std::cout<<"CenterValue: "<<ProductionList[x][centercell]<<" sum: "<<sumCenterCell<<std::endl;
 
 
     }   
     std::cout<<" Sum center element adjusted print orders= "<< sumCenterCell<<std::endl; 
+    //test
+    std::cout<<std::endl<<" #### Test final Productionlist ### "<<std::endl;
+    okOrders=0;
+    std::vector<int> reTestfailedOrders;
+        
+    for(int x=0; x<ProductionList.size(); x++){
+        //std::cout<<" Production list size: "<<ProductionList.size()<<" x:"<<x<<" LIST: "<<std::endl;
+        //for (auto x:ProductionList[x])std::cout<<x<<" "; 
+        //std::cout<<std::endl;
+        if(checkPrintOrderREC(PageOrderingRules,ProductionList[x], nPOR)){
+            okOrders++;
+            int centercell= ((ProductionList[x].size()/2));
+            sumCenterCell = sumCenterCell+ProductionList[x][centercell]; 
+//            std::cout<<"correctly ordered update at line: "<<x<<std::endl;
+//            std::cout<<"Center page no: "<<centercell<<" Center value "<<ProductionList[x][centercell]<<" |Sum: "<<sumCenterCell<<std::endl;
+        } else{
+          reTestfailedOrders.push_back(x); 
+        }
+    }
+    std::cout<<" Sum center element approved print orders= "<< sumCenterCell<<std::endl; 
+    std::cout<<" Number of OK orders = "<< okOrders<<std::endl; 
+    std::cout<<" Failed orders = "<<std::endl;
+    std::cout<<" Number of failed orders = "<< reTestfailedOrders.size()<<std::endl; 
+    for (auto x:reTestfailedOrders)std::cout<<x<<" "; 
+    
     return 0;
 }
